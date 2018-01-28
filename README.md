@@ -2,6 +2,11 @@
 
 A set of Python scripts to convert models to and from Oolite’s DAT format.
 
+The *Dat2Obj.py* and *Dat2ObjTex.py* has been both replaced by *dat2obj.py* one and respectively renamed *Dat2Obj_old.py* and *Dat2ObjTex_old.py*.
+
+*dat2obj.py* can handle `.dat` files containing mono-textured objects or multi-textured object, including normals.
+See `dat2obj.md` for more information.
+
 The tools are:
 
 *Obj2DatTexNorm.py*: convert a mesh in OBJ format to DAT, preserving texture coordinates and vertex normals. This is now the recommended conversion tool. The meshes it produces require Oolite test release 1.74 or later.
