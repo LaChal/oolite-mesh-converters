@@ -1,0 +1,25 @@
+INSTALLATION NOTES FOR LINUX SYSTEMS
+====================================
+
+Just unpack the stuff somewhere and make sure the next files are executable:
+
+* Dat2Mesh.py
+* Dat2Obj_old.py
+* dat2obj.py
+* Dat2ObjTex_old.py
+* DatScale.py
+* Mesh2Dat.py
+* Mesh2DatTex.py
+* Mesh2Obj.py
+* Obj2DatTexNorm.py
+* Obj2DatTex.py
+
+Then, calling one of these file with the './' prefix will make it run using your
+Python 2 interpreter!
+
+Have a look to the 'README.md' file for usage.
+
+If you are using Python 3 instead of Python 2, 'dat2obj.py' prgramm will work if
+you convert it with '2to3' Python script.
+No waranty for the other ones!
+
