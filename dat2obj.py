@@ -28,7 +28,7 @@ The first name will be the index 0 found in the .dat file, the second one
 index 1, and so on.
 """
 __authors__ = "(C) Giles Williams 2005 and Kaks 2008 / LaChal 2018."
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 import os
 import sys
@@ -157,8 +157,7 @@ def split_line(line):
     Returns a list of strings."""
     if ',' in line:
         return [a.strip() for a in line.split(',')]
-    else:
-        return line.split()
+    return line.split()
 
 
 def build_file_path(dir_name, file_name, ext):
@@ -185,9 +184,7 @@ def write_dump_file(dir_name, file_name, ext, datas):
                 for key, value in data.items():
                     if isinstance(value, OrderedDict):
                         value = dict(value)
-                    fd_out.write('"%s": %s\n' % (key, pprint.pformat(value,
-                                                                     indent=4)
-                                                                     ))
+                    fd_out.write('"%s": %s\n' % (key, pprint.pformat(value, indent=4)))
             else:
                 fd_out.write(pprint.pformat(data, indent=4))
 
@@ -535,7 +532,7 @@ def write_mtl(output_file_name, tex_map):
     :tex_map: dict: Texture map to find texture file names.
     """
 
-    def _build_entry(_tex_map, _idx="0"): 
+    def _build_entry(_tex_map, _idx="0"):
         """Builds a .mtl file entry.
         :_tex_map: dictionary: Map to look into.
         :_idx: string: The index to look for.
@@ -581,8 +578,9 @@ def main():
                 write_dump_file(file_dir_name, file_base_name, "sec",
                                 {"sections": sections})
 
-            if not len(sections):
-                _error("Nothing could be read from '%s'.\nIs this an Oolite .dat file?" % input_file_name)
+            if not sections:
+                _error("Nothing could be read from '%s'.\nIs this an Oolite .dat file?" \
+                       % input_file_name)
 
         # Magically call the 'check' functions
         for name in sections.keys():
@@ -614,7 +612,7 @@ def main():
         # used in 'TEXTURES'.
         if  sorted(tex_map.keys()) != sorted(tex_refs.get("named").keys()):
             tex_map = update_tex_map(tex_map,
-                    set(tex_refs["named"].keys()).difference(tex_map.keys()))
+                                     set(tex_refs["named"].keys()).difference(tex_map.keys()))
 
         if debug:
             write_dump_file(file_dir_name, file_base_name, "txm",

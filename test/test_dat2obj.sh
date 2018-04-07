@@ -29,8 +29,16 @@ function install_virtualenv () {
         wget -q --no-check-certificate -O .virtenv-inst "$VIRTUALENV_URL"
         tar xvf .virtenv-inst
         mv virtualenv* .virtualenv
-        python .virtualenv/virtualenv.py .venv --system-site-packages
+        echo "Creating virtual environment..."
+        # Badly, I experience uncompatibility issues if pip 9.0.3 is available
+        # on the system.
+        # Looks like sonmething between pip 9.0.1 and 9.0.3 changed in the API
+        # and make the virtual evironment fail if we want to use the system
+        # site-packages...
+        # python .virtualenv/virtualenv.py .venv --system-site-packages
+        python .virtualenv/virtualenv.py .venv
         chmod 755 .venv/bin/activate
+        echo "Done."
     fi
 }
 
@@ -41,9 +49,9 @@ function activate_venv () {
     echo "$VIRTUAL_ENV"
 }
 
-function install_openstep_parser () {
-    # Install the .plits Python parser in the virtual environment.
-    pip install openstep_parser
+function install_pbPlist () {
+    # Install the .plist Python parser in the virtual environment.
+    pip install pbPlist
 }
 
 function build_oti () {
@@ -175,7 +183,7 @@ install_virtualenv
 
 activate_venv
 
-install_openstep_parser
+install_pbPlist
 
 copy_files "oolite*.dat" "$OOLITE_MODELS_DIR" "$OUTPUT_LEFT" "$INPUT_DAT_FILES" "$IGNORE"
 

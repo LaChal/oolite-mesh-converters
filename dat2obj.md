@@ -101,3 +101,5 @@ This program requires two command line arguments:
 All the `.dat` files found will be scanned, and corresponding `.oti` files created.
 If a `.dat` file do not have a *NAMES* section, no corresponding `.oti` file is generated!
 
+Note that the `pbPlist` Python module is required for `build_otis.py` to work.
+
