@@ -18,8 +18,9 @@ Then, calling one of these file with the './' prefix will make it run using your
 Python 2 interpreter!
 
 Have a look to the 'README.md' file for usage.
+`dat2obj.md` contains specific information for `dat2obj.py` program.
 
-If you are using Python 3 instead of Python 2, 'dat2obj.py' prgramm will work if
+If you are using Python 3 instead of Python 2, 'dat2obj.py' program will work if
 you convert it with '2to3' Python script.
 No waranty for the other ones!
 
