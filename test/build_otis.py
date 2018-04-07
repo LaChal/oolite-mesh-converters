@@ -7,7 +7,7 @@
 # Build .oti files fo dat2obj.py
 #
 # Reads a given .plist file and extract the texture data needed by dat2obj.py
-# Requires openstep_parser v1.3.1 (https://pypi.python.org/pypi/openstep_parser)
+# Requires pbPlist v1.0.3 (https://pypi.python.org/pypi/pbPlist/1.0.3)
 #
 """
 Builds .oti files for dat2obj.py
@@ -17,12 +17,13 @@ Usage:
 python build_oti.py <plist_file> <dat_files_dir> [<output_dir>]
 
 """
+from __future__ import unicode_literals
 
 import os
 import sys
-import re
 import glob
-from openstep_parser import OpenStepDecoder
+from pbPlist import pbPlist
+# Ensure we can use dat2obj.py as a module.
 sys.path.insert(1, "..")
 from dat2obj import get_sections
 
@@ -30,27 +31,16 @@ from dat2obj import get_sections
 def read_plist(f_path):
     """Reads a plist file.
     :f_path: string: path to the plist file to read.
-    Returns a dict.
+    Returns a pbPlist.PBPlist instance.
     """
-    # Read the file given as first CLI arg.
-    # Send data to OpenStepDecoder
-    with open(f_path, "r") as f_in:
-        raw_plist = f_in.read().decode("utf_8")
-
-    # 'Correct' the raw plist data since the decoder absolutely wants comas
-    # after all array elements and can't parse key/values if no whithespaces
-    # are found arround the equal sign...
-    raw_plist = re.sub(r"//\s*.*", r"", raw_plist)
-    raw_plist = re.sub(r"([^\s])=([^\s])", r"\1 = \2", raw_plist)
-    raw_plist = re.sub(r"([^,])(\s*)\)", r"\1,\2)", raw_plist)
-
-    return OpenStepDecoder.ParseFromString(raw_plist)
+    assert os.path.isfile(f_path)
+    return pbPlist.PBPlist(f_path).root.value
 
 
 def get_models_map(plist):
     """Builds the models map from plist data.
     :plist: dict: plist data to be scanned.
-    Returns a dict loke:
+    Returns a dict like:
     {"model_file_name.dat": "model_entry_name_in_plist"}
     """
     models = {}
@@ -68,7 +58,7 @@ def get_tex_aliases(f_name, tex_aliases=dict()):
     Returns the updated tex_aliases dict.
     """
     with open(f_name, "rU") as f_in:
-        aliases = get_sections(f_in.read()).get("NAMES", {}).get("data")
+        aliases = get_sections(unicode(f_in.read())).get("NAMES", {}).get("data")
     if aliases:
         tex_aliases[os.path.basename(f_name)] = aliases
     return tex_aliases
@@ -86,9 +76,8 @@ def write_oti(name, directory, tex_names, plist):
     """
     lines = []
     for tex in tex_names:
-        lines.append(plist["materials"].get(tex, {}).get("diffuse_map", tex))
-    f_name = os.path.join(directory,
-        os.path.extsep.join((os.path.splitext(name)[0], "oti")))
+        lines.append(getattr(plist["materials"].get(tex, {}).get("diffuse_map", tex), "value", tex))
+    f_name = os.path.join(directory, os.path.extsep.join((os.path.splitext(name)[0], "oti")))
     with open(f_name, "w") as f_out:
         f_out.write("\n".join(lines))
 
