@@ -2,7 +2,7 @@
 #
 # build_otis.py
 #
-# (C) D.C.-G. (LaCahl) 2018
+# (C) D.C.-G. (LaChal) 2018
 #
 # Build .oti files fo dat2obj.py
 #
@@ -21,11 +21,27 @@ from __future__ import unicode_literals
 
 import os
 import sys
+
+# Ensure the virtual environment is loaded if it exists.
+# Deactivate pylint import order checks since we need to activate the virtual environment before
+# importing pbPList.
+# pylint: disable=wrong-import-position
+__VENV = False
+if os.path.isdir(".venv/lib/python2.7"):
+    if sys.platform == "win32":
+        ACTIVATE_THIS = os.path.abspath(".venv/Scripts/activate_this.py")
+    else:
+        ACTIVATE_THIS = os.path.abspath(".venv/bin/activate_this.py")
+    execfile(ACTIVATE_THIS, dict(__file__=ACTIVATE_THIS))
+    __VENV = True
+
 import glob
 from pbPlist import pbPlist
+
 # Ensure we can use dat2obj.py as a module.
 sys.path.insert(1, "..")
 from dat2obj import get_sections
+# pylint: enable=wrong-import-position
 
 
 def read_plist(f_path):
@@ -50,13 +66,14 @@ def get_models_map(plist):
     return models
 
 
-def get_tex_aliases(f_name, tex_aliases=dict()):
-    """Find the texture names (aliases) in the given .dat file and update the
-    tex_aliases dict.
+def get_tex_aliases(f_name, tex_aliases=None):
+    """Find the texture names (aliases) in the given .dat file and update the tex_aliases dict.
     :f_name: string: The file path to read.
     :tex_aliases: dict: Dictionary to update. Defaults to an empty dict.
     Returns the updated tex_aliases dict.
     """
+    if tex_aliases is None:
+        tex_aliases = {}
     with open(f_name, "rU") as f_in:
         aliases = get_sections(unicode(f_in.read())).get("NAMES", {}).get("data")
     if aliases:
@@ -68,9 +85,8 @@ def write_oti(name, directory, tex_names, plist):
     """Writes the .oti file.
     :name: string: The .dat file name to write the .oti for.
     :directory: string: Where to write the .oti file.
-    :tex_names: list/tuple: List of the textures names (aliases). The order of
-        elements defines in which order the real textures names are written in
-        the .oti file.
+    :tex_names: list/tuple: List of the textures names (aliases). The order of elements defines in
+        which order the real textures names are written in the .oti file.
     :plist: dict: Contains the 'model' data extracted from a .plist file.
     Retruns nothing.
     """
@@ -82,24 +98,28 @@ def write_oti(name, directory, tex_names, plist):
         f_out.write("\n".join(lines))
 
 
-def main():
-    """..."""
-    if len(sys.argv) < 3:
+def main(args=None):
+    """Program bootstrap."""
+    print "= Starting build_otis."
+    if not args:
+        args = sys.argv[1:]
+    if __VENV:
+        print "  (Virtual environment in '.venv' activated.)"
+    if len(args) < 3:
         print "! ERROR: Too many CLI arguments."
         print "Put at least two positional arguments on CLI:"
         print "<plist_file> <dat_files_dir>"
         sys.exit(1)
-    f_plist = sys.argv[1]
-    dat_dir = output_dir = sys.argv[2]
-    if len(sys.argv) == 4:
-        output_dir = sys.argv[3]
+    f_plist = args[0]
+    dat_dir = output_dir = args[1]
+    if len(args) == 3:
+        output_dir = args[2]
     plist = read_plist(f_plist)
     models = get_models_map(plist)
 
-    # Scan the .dat files in the directory given as second CLI arg to get names
-    # order.
+    # Scan the .dat files in the directory given as second CLI arg to get names order.
     # Store them in a dict with file base name (without ext) as keys.
-    names = glob.glob(os.path.join(dat_dir, "*.dat"))
+    names = sorted(glob.glob(os.path.join(dat_dir, "*.dat")))
     tex_aliases = {}
     for name in names:
         print "* Finding texture aliases for '%s'." % name

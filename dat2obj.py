@@ -2,7 +2,7 @@
 #
 # -*- coding: utf-8 -*-
 #
-# Dat2ObjTex_dcg.py v1.0.0
+# dat2obj.py v1.0.2
 #
 """
 dat2obj.py  by D.C.-G. (LaChal) 2018.
@@ -26,9 +26,11 @@ Texture Index) extension can be created alongside the .dat file to convert.
 The format of this .oti file is very simple: one texture file name a line.
 The first name will be the index 0 found in the .dat file, the second one
 index 1, and so on.
+Creating these .oti files externally  will be removed in a future version which
+will gnenerate the needed data directly..
 """
 __authors__ = "(C) Giles Williams 2005 and Kaks 2008 / LaChal 2018."
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 import os
 import sys
@@ -120,7 +122,7 @@ def __exit(msg, code=0, std=sys.stdout):
 
 def _exit(msg):
     """Normal program termination. Calls '__exit' with 'msg' argument.
-    :msg: string: Messagr to display.
+    :msg: string: Message to display.
     Exit code is always 0.
     Don't return anything...
     """
@@ -138,7 +140,7 @@ def _error(msg, code=1):
 
 
 def check_cli():
-    """Reads sys.argvs and process arguments.
+    """Reads sys.argv and process arguments.
     Returns a tuple: (bool:debug_mode, list:input_file_names).
     """
     if "--help" in sys.argv or "-h" in sys.argv:
@@ -164,7 +166,7 @@ def build_file_path(dir_name, file_name, ext):
     """Rebuilds a file path.
     :dir_name: string: The directory where the file lies.
     :file_name: string: The name of the file.
-    :ext: string: Teh file extension.
+    :ext: string: The file extension.
     Return a string.
     """
     return os.path.join(dir_name, os.path.extsep.join((file_name, ext)))
@@ -173,7 +175,7 @@ def build_file_path(dir_name, file_name, ext):
 def write_dump_file(dir_name, file_name, ext, datas):
     """Writes a dump file for debugging internal data.
     :dir_name, :file_name and :ext: See 'build_file_path' docstring.
-    :datas: dictionary: Key are data names and values datas to be dumped.
+    :datas: dictionary: Keys are data names and values datas to be dumped.
     """
     f_name = build_file_path(dir_name, file_name, ext)
     with open(f_name, "w") as fd_out:
@@ -229,7 +231,7 @@ def _get_tex_name(tex_map, idx, suffix="_auv"):
     """Returns a texture name built according to :tex_map data.
     :tex_map: dictionary: The texture map to search in.
     :idx: string: The index to search for in :tex_map.
-    :suffix: string: the suffix to be added to the texture name.
+    :suffix: string: The suffix to be added to the texture name.
         Defaults to '_auv'.
     If :idx is not found in :tex_map, a default name is built like this:
     'tex<idx><suffix>'.
@@ -242,7 +244,7 @@ def _get_tex_name(tex_map, idx, suffix="_auv"):
 # These functions are called 'magically' and only if they exists.
 def check_nverts(sections):
     """Verify if the number of lines in VERTEX section are exactly as
-    defined in NVERS.
+    defined in NVERTS.
     :sections: dictionary: The object send by 'get_sections' function.
     """
     return _check_nentries(sections, "NVERTS", "VERTEX")
@@ -257,7 +259,7 @@ def check_nfaces(sections):
 
 
 def check_names(sections):
-    """Verify the tesxure names length is as declared in NAMES.
+    """Verify the texture names length is as declared in NAMES.
     :sections: dictionary: The object send by 'get_sections' function.
     """
     return _check_nentries(sections, "NAMES", "NAMES")
@@ -265,8 +267,8 @@ def check_names(sections):
 
 #-------------------------- DATA PARSING FUNCTIONS ---------------------------
 def parse_textures(lines):
-    """Parses the TEXTUES data and new data to be used later and written in
-    .obj file.
+    """Parses the TEXTUES data and build new data to be used later and written
+    in .obj file.
     :lines: list of strings: The TEXTURES lines as found in the .dat file.
     Returns a tuple:
     (dict:textures_references, list:.obj_file_textures)"""
@@ -275,9 +277,8 @@ def parse_textures(lines):
     def tex_index(tex, vts):
         """Returns the index of 'tex' in 'vts' or -1 if not found.
         :tex: string: Preformated string to be found.
-        :vts: list of prformatted strings: Where to find 'tex'.
-        Returns a signed int.
-        """
+        :vts: list of preformatted strings: Where to find 'tex'.
+        Returns a signed int."""
         if tex in vts:
             return vts.index(tex)
         return -1
@@ -319,7 +320,7 @@ def parse_textures(lines):
 
 def parse_vertex(lines):
     """Parses the VERTEX data and return new data to be written in .obj file.
-    :lines: list of strings: The FACES lines as found in the .dat file.
+    :lines: list of strings: The VERTEX lines as found in the .dat file.
     Returns a tuple:
     (int:number_of_vertex, list:.obj_file_vertex)"""
     print "  * Parsing vertex"
@@ -328,7 +329,7 @@ def parse_vertex(lines):
 
 def parse_normals(lines):
     """Parses the NORMALS data and return new data to be written in .obj file.
-    :lines: list of strings: The FACES lines as found in the .dat file.
+    :lines: list of strings: The NORMALS lines as found in the .dat file.
     Returns a tuple:
     (int:number_of_normals, list:.obj_file_normals)"""
     print "  * Parsing normals"
@@ -413,7 +414,7 @@ def parse_faces(lines, tex_for_face, n_normals):
 
 def parse_names(lines, oti_file_name):
     """Parses the NAMES data.
-    :lines: array of strings: The data to ba parsed.
+    :lines: array of strings: The data to be parsed.
     :oti_file_name: string: The .oti file to read texture file names from.
     Returns a dict like:
     {"line_index": "alias": "<texture_alias>", "name": "<texture_file_name>"}
@@ -470,7 +471,7 @@ def update_tex_map(tex_map, tex_keys):
     changed.
     :tex_map: dictionary: Textures map to be updated.
     :tex_keys: list of strings: Keys to be added to :tex_map.
-        Is considered is being a list of file names WITH its extension.
+        Is considered to be a list of file names WITH its extension.
     Returns updated :tex_map.
     """
     for key in tex_keys:
@@ -548,7 +549,7 @@ def write_mtl(output_file_name, tex_map):
         for idx in sorted(tex_map.keys()):
             materials += _build_entry(tex_map, idx)
     else:
-        #Let define a default material when there's no map at all.
+        # Let define a default material when there's no map at all.
         materials += _build_entry(tex_map)
 
     with open(output_file_name, "w") as fd_out:
@@ -641,9 +642,9 @@ def main():
                              "faces_groups": faces_groups})
 
         output_file_name = build_file_path(file_dir_name,
-                                           file_base_name, 'obj').lower()
+                                           file_base_name, 'obj')
         material_file_name = build_file_path(file_dir_name,
-                                             file_base_name, 'mtl').lower()
+                                             file_base_name, 'mtl')
         mtl_lib_file = os.path.basename(material_file_name)
 
         write_obj(output_file_name, file_base_name, mtl_lib_file,
